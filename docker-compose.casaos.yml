@@ -17,9 +17,5 @@ services:
       - SIMFAR_URL=http://host.docker.internal:3000
       - SIMFAR_WEBHOOK=http://host.docker.internal:3000/api/store/notif
     volumes:
-      - apotek-online-data:/app/server/data
-      - apotek-online-uploads:/app/server/uploads
-
-volumes:
-  apotek-online-data:
-  apotek-online-uploads:
+      - /DATA/AppData/apotek-online/data:/app/server/data
+      - /DATA/AppData/apotek-online/uploads:/app/server/uploads
