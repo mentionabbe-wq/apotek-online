@@ -31,6 +31,7 @@ async function notifSimfar(order) {
         total: order.total,
         items: order.items?.length || 0,
         item_names: (order.items || []).map(i => `${i.nama} x${i.jumlah}`),
+        items_detail: (order.items || []).map(i => ({ obat_id: i.id, nama: i.nama, jumlah: i.jumlah })),
         waktu: new Date().toISOString()
       }),
       timeout: 5000
