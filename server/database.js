@@ -72,6 +72,15 @@ function initDatabase() {
     );
   `);
 
+  // Migration: tambah kolom yang mungkin belum ada di DB lama
+  const addCol = (tbl, col, def) => {
+    try { db.exec(`ALTER TABLE ${tbl} ADD COLUMN ${col} ${def}`); } catch (_) {}
+  };
+  addCol('customer', 'npwp',     'TEXT DEFAULT ""');
+  addCol('customer', 'kategori', 'TEXT DEFAULT "Umum"');
+  addCol('customer', 'password', 'TEXT DEFAULT ""');
+  addCol('order_online', 'kategori_customer', 'TEXT DEFAULT "Umum"');
+
   const defaults = {
     namaApotek: process.env.NAMA_APOTEK || 'Apotek Dian Farma',
     alamat: process.env.ALAMAT_APOTEK || 'Jl. Kesehatan No. 1',
