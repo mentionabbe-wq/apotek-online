@@ -317,13 +317,14 @@ function ubahUnit(idx, unit){
   const item=keranjang[idx];
   const p=produkList.find(x=>x.id===item.id);
   if(!p) return;
-  if(unit==='besar'&&(!p.satuan_besar||!p.isi_per_besar||!p.jual_besar)){showToast('Satuan besar tidak tersedia');return;}
+  if(unit==='besar'&&!p.satuan_besar){showToast('Satuan besar tidak tersedia');return;}
+  const isi=p.isi_per_besar||1;
+  const jualBesar=p.jual_besar||(p.harga_jual*isi);
   item.unit=unit;
   if(unit==='besar'){
-    item.harga_unit=p.jual_besar;
-    item.qty_kecil=item.jumlah*p.isi_per_besar;
-    // Pastikan stok cukup
-    if(item.qty_kecil>p.stok){item.jumlah=Math.max(1,Math.floor(p.stok/p.isi_per_besar));item.qty_kecil=item.jumlah*p.isi_per_besar;}
+    item.harga_unit=jualBesar;
+    item.qty_kecil=item.jumlah*isi;
+    if(item.qty_kecil>p.stok){item.jumlah=Math.max(1,Math.floor(p.stok/isi));item.qty_kecil=item.jumlah*isi;}
   } else {
     item.harga_unit=p.harga_jual;
     item.qty_kecil=item.jumlah;
@@ -335,9 +336,10 @@ function ubahUnit(idx, unit){
 function ubahQty(idx, delta){
   const item=keranjang[idx];
   const p=produkList.find(x=>x.id===item.id);
-  const maxQty=p?(item.unit==='besar'?Math.floor(p.stok/(p.isi_per_besar||1)):p.stok):999;
+  const isi=p?(p.isi_per_besar||1):1;
+  const maxQty=p?(item.unit==='besar'?Math.floor(p.stok/isi):p.stok):999;
   item.jumlah=Math.max(0, Math.min(item.jumlah+delta, maxQty));
-  if(item.unit==='besar') item.qty_kecil=item.jumlah*(p?.isi_per_besar||1);
+  if(item.unit==='besar') item.qty_kecil=item.jumlah*isi;
   else item.qty_kecil=item.jumlah;
   if(item.jumlah<=0) keranjang.splice(idx,1);
   updateBadge();
@@ -360,7 +362,7 @@ function tampilKeranjang(){
     ${!keranjang.length?'<div class="kosong">Keranjang masih kosong</div>':`
       ${keranjang.map((item,i)=>{
         const p=produkList.find(x=>x.id===item.id);
-        const hasBesar=p&&p.satuan_besar&&p.isi_per_besar&&p.jual_besar;
+        const hasBesar=p&&p.satuan_besar;
         return `<div class="cart-item">
           <div style="flex:1">
             <div class="cart-nama">${item.nama}</div>
