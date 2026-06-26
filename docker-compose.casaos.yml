@@ -12,12 +12,11 @@ services:
       - NAMA_APOTEK=Apotek Dian Farma
       - ALAMAT_APOTEK=Jl. Kesehatan No. 1, Bandung
       - TELEPON_APOTEK=08123456789
-      - SIMFAR_DB=/simfar-data/apotek.db
+      - SIMFAR_URL=http://apotek-sehatfarma:3000
       - SIMFAR_WEBHOOK=http://apotek-sehatfarma:3000/api/store/notif
     volumes:
       - apotek-online-data:/app/server/data
       - apotek-online-uploads:/app/server/uploads
-      - apotek-sehatfarma_apotek-data:/simfar-data:ro
     networks:
       - apotek-net
 
@@ -29,5 +28,3 @@ networks:
 volumes:
   apotek-online-data:
   apotek-online-uploads:
-  apotek-sehatfarma_apotek-data:
-    external: true

@@ -40,7 +40,7 @@ async function notifSimfar(order) {
 }
 
 // POST /api/order/checkout
-router.post('/checkout', (req, res) => {
+router.post('/checkout', async (req, res) => {
   const { nama, telepon, alamat, email, catatan, items, metode_bayar } = req.body;
 
   if (!nama || !telepon || !items?.length) {
@@ -48,12 +48,12 @@ router.post('/checkout', (req, res) => {
   }
 
   try {
-    // Validasi & hitung dari data SehatFarma
+    // Validasi & hitung dari data apotek-app
     let subtotal = 0;
     const validItems = [];
 
     for (const item of items) {
-      const produk = getProdukById(item.obat_id);
+      const produk = await getProdukById(item.obat_id);
       if (!produk) return res.status(400).json({ success: false, message: `Produk tidak ditemukan: ${item.nama_obat}` });
       if (produk.stok < item.jumlah) return res.status(400).json({ success: false, message: `Stok ${produk.nama} tidak cukup (tersisa ${produk.stok})` });
 

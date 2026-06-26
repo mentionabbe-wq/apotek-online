@@ -1,6 +1,7 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
+const fetch = require('node-fetch');
 
 // DB apotek-online sendiri
 const DATA_DIR = process.env.DB_DIR || path.join(__dirname, 'data');
@@ -10,19 +11,8 @@ const db = new Database(path.join(DATA_DIR, 'toko.db'));
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
-// DB apotek-app (read-only untuk ambil produk & stok)
-const simfarPath = process.env.SIMFAR_DB || '/simfar-data/apotek.db';
-let dbSimfar = null;
-try {
-  if (fs.existsSync(simfarPath)) {
-    dbSimfar = new Database(simfarPath, { readonly: true });
-    console.log('✓ Terhubung ke database apotek-app');
-  } else {
-    console.warn('⚠ Database apotek-app tidak ditemukan di:', simfarPath);
-  }
-} catch (e) {
-  console.warn('⚠ Gagal buka DB apotek-app:', e.message);
-}
+// Base URL apotek-app (via Docker network internal)
+const SIMFAR_URL = process.env.SIMFAR_URL || 'http://apotek-sehatfarma:3000';
 
 function initDatabase() {
   db.exec(`
@@ -72,7 +62,6 @@ function initDatabase() {
     );
   `);
 
-  // Default pengaturan
   const defaults = {
     namaApotek: process.env.NAMA_APOTEK || 'Apotek Dian Farma',
     alamat: process.env.ALAMAT_APOTEK || 'Jl. Kesehatan No. 1',
@@ -87,6 +76,7 @@ function initDatabase() {
   for (const [k, v] of Object.entries(defaults)) ins.run(k, v);
 
   console.log('✓ Database toko siap');
+  console.log(`✓ Produk diambil dari: ${SIMFAR_URL}/api/publik/produk`);
 }
 
 function getPengaturan(key) {
@@ -101,27 +91,30 @@ function genKodeOrder() {
   return `ORD-${ym}-${String(n).padStart(4,'0')}`;
 }
 
-// Ambil produk dari apotek-app
-function getProdukSimfar(search = '', limit = 50, offset = 0) {
-  if (!dbSimfar) return { items: [], total: 0 };
+// Ambil produk via HTTP dari apotek-app
+async function getProdukSimfar(search = '', limit = 24, offset = 0) {
   try {
-    const where = search
-      ? `WHERE (LOWER(nama) LIKE LOWER('%${search}%') OR LOWER(kategori) LIKE LOWER('%${search}%')) AND stok > 0`
-      : 'WHERE stok > 0';
-    const items = dbSimfar.prepare(`SELECT id, kode, nama, kategori, stok, harga_jual, satuan FROM obat ${where} ORDER BY nama LIMIT ? OFFSET ?`).all(limit, offset);
-    const total = dbSimfar.prepare(`SELECT COUNT(*) as c FROM obat ${where}`).get().c;
-    return { items, total };
+    const page = Math.floor(offset / limit) + 1;
+    const url = `${SIMFAR_URL}/api/publik/produk?search=${encodeURIComponent(search)}&page=${page}`;
+    const res = await fetch(url, { timeout: 5000 });
+    const json = await res.json();
+    return { items: json.items || [], total: json.total || 0 };
   } catch (e) {
     console.error('getProdukSimfar error:', e.message);
     return { items: [], total: 0 };
   }
 }
 
-function getProdukById(id) {
-  if (!dbSimfar) return null;
+// Ambil satu produk via HTTP
+async function getProdukById(id) {
   try {
-    return dbSimfar.prepare('SELECT id, kode, nama, kategori, stok, harga_jual, satuan FROM obat WHERE id=?').get(id);
-  } catch { return null; }
+    const res = await fetch(`${SIMFAR_URL}/api/publik/produk/${id}`, { timeout: 5000 });
+    const json = await res.json();
+    return json.success ? json.data : null;
+  } catch (e) {
+    console.error('getProdukById error:', e.message);
+    return null;
+  }
 }
 
-module.exports = { db, dbSimfar, initDatabase, getPengaturan, genKodeOrder, getProdukSimfar, getProdukById };
+module.exports = { db, initDatabase, getPengaturan, genKodeOrder, getProdukSimfar, getProdukById };
