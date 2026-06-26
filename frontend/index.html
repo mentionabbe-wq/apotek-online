@@ -6,16 +6,17 @@
 <title>Apotek Dian Farma — Toko Online</title>
 <style>
 :root {
-  --hijau: #16a34a;
-  --hijau-muda: #dcfce7;
-  --hijau-gelap: #14532d;
+  --biru: #003D82;
+  --biru-muda: #005BAA;
+  --biru-gelap: #002659;
+  --kuning: #F5A800;
+  --kuning-muda: #FFF3CC;
   --teks: #1a1a2e;
   --teks-abu: #6b7280;
-  --bg: #f8fafc;
+  --bg: #f4f6fa;
   --putih: #ffffff;
-  --border: #e5e7eb;
+  --border: #dde3ef;
   --merah: #dc2626;
-  --kuning: #d97706;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,105 +24,137 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); co
 
 /* NAV */
 nav {
-  background: var(--putih); border-bottom: 1px solid var(--border);
+  background: var(--biru);
   position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
 .nav-inner {
-  max-width: 1100px; margin: 0 auto; padding: 12px 20px;
+  max-width: 1100px; margin: 0 auto; padding: 13px 20px;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
 }
-.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .logo-icon {
-  width: 38px; height: 38px; background: var(--hijau);
-  border-radius: 10px; display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem;
+  width: 40px; height: 40px; background: var(--kuning);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
 }
-.logo-text { font-size: 1rem; font-weight: 700; color: var(--teks); line-height: 1.2; }
-.logo-text span { font-size: 0.72rem; color: var(--teks-abu); font-weight: 400; display: block; }
+.logo-text { font-size: 1rem; font-weight: 700; color: var(--putih); line-height: 1.2; }
+.logo-text span { font-size: 0.7rem; color: rgba(255,255,255,0.7); font-weight: 400; display: block; letter-spacing: 0.04em; }
 
-.search-wrap { flex: 1; max-width: 420px; position: relative; }
+.search-wrap { flex: 1; max-width: 440px; position: relative; }
 .search-wrap input {
-  width: 100%; padding: 9px 16px 9px 38px;
-  border: 1.5px solid var(--border); border-radius: 24px;
-  font-size: 0.88rem; outline: none; transition: border-color 0.15s;
-  background: var(--bg);
+  width: 100%; padding: 9px 16px 9px 40px;
+  border: none; border-radius: 6px;
+  font-size: 0.88rem; outline: none;
+  background: rgba(255,255,255,0.15); color: white;
+  transition: background 0.15s;
 }
-.search-wrap input:focus { border-color: var(--hijau); }
-.search-wrap .icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--teks-abu); font-size: 0.9rem; }
+.search-wrap input::placeholder { color: rgba(255,255,255,0.6); }
+.search-wrap input:focus { background: rgba(255,255,255,0.25); }
+.search-wrap .icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); font-size: 0.9rem; }
 
 .keranjang-btn {
-  position: relative; background: var(--hijau); color: white;
-  border: none; border-radius: 10px; padding: 9px 18px;
-  font-size: 0.88rem; font-weight: 600; cursor: pointer;
-  display: flex; align-items: center; gap: 6px; transition: opacity 0.15s;
+  position: relative; background: var(--kuning); color: var(--biru-gelap);
+  border: none; border-radius: 6px; padding: 9px 18px;
+  font-size: 0.88rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; gap: 6px; transition: opacity 0.15s; flex-shrink: 0;
 }
 .keranjang-btn:hover { opacity: 0.88; }
 .badge-cart {
   position: absolute; top: -6px; right: -6px;
   background: var(--merah); color: white; font-size: 0.65rem;
   font-weight: 700; min-width: 18px; height: 18px;
-  border-radius: 9px; display: flex; align-items: center; justify-content: center;
-  padding: 0 4px; display: none;
+  border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px;
 }
 
 /* HERO */
 .hero {
-  background: linear-gradient(135deg, var(--hijau-gelap) 0%, var(--hijau) 100%);
-  color: white; padding: 48px 20px; text-align: center;
+  background: linear-gradient(135deg, var(--biru-gelap) 0%, var(--biru-muda) 100%);
+  color: white; padding: 44px 20px; text-align: center; position: relative; overflow: hidden;
 }
-.hero h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
-.hero p { font-size: 0.95rem; opacity: 0.85; max-width: 480px; margin: 0 auto; }
+.hero::before {
+  content: ''; position: absolute; top: -40px; right: -60px;
+  width: 280px; height: 280px; border-radius: 50%;
+  background: rgba(245,168,0,0.1); pointer-events: none;
+}
+.hero::after {
+  content: ''; position: absolute; bottom: -60px; left: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(255,255,255,0.05); pointer-events: none;
+}
+.hero h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 8px; position: relative; }
+.hero h1 span { color: var(--kuning); }
+.hero p { font-size: 0.92rem; opacity: 0.82; max-width: 460px; margin: 0 auto 18px; position: relative; }
+.hero-badge {
+  display: inline-flex; gap: 20px; background: rgba(255,255,255,0.1);
+  border-radius: 30px; padding: 8px 20px; font-size: 0.78rem; position: relative;
+}
+.hero-badge span { display: flex; align-items: center; gap: 5px; }
 
 /* MAIN */
-main { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+main { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
 
-.section-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--teks); }
+.section-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+}
+.section-title {
+  font-size: 0.95rem; font-weight: 700; color: var(--biru);
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title::before {
+  content: ''; display: block; width: 4px; height: 18px;
+  background: var(--kuning); border-radius: 2px;
+}
 
 /* GRID PRODUK */
 .produk-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
   gap: 14px;
 }
 .produk-card {
-  background: var(--putih); border-radius: 12px;
+  background: var(--putih); border-radius: 10px;
   border: 1px solid var(--border); padding: 16px;
-  display: flex; flex-direction: column; gap: 8px;
+  display: flex; flex-direction: column; gap: 7px;
   transition: box-shadow 0.15s, transform 0.15s;
+  position: relative; overflow: hidden;
 }
-.produk-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.produk-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: linear-gradient(90deg, var(--biru), var(--biru-muda));
+}
+.produk-card:hover { box-shadow: 0 6px 20px rgba(0,61,130,0.12); transform: translateY(-2px); }
 
 .produk-kategori {
-  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em;
-  color: var(--hijau); font-weight: 600;
+  font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--biru-muda); font-weight: 700;
 }
-.produk-nama { font-size: 0.88rem; font-weight: 600; line-height: 1.35; color: var(--teks); }
-.produk-satuan { font-size: 0.72rem; color: var(--teks-abu); }
-.produk-stok { font-size: 0.72rem; }
-.stok-ok { color: var(--hijau); }
+.produk-nama { font-size: 0.87rem; font-weight: 600; line-height: 1.35; color: var(--teks); }
+.produk-satuan { font-size: 0.71rem; color: var(--teks-abu); }
+.produk-stok { font-size: 0.71rem; }
+.stok-ok { color: #16a34a; }
 .stok-habis { color: var(--merah); }
-.produk-harga { font-size: 1rem; font-weight: 700; color: var(--hijau); margin-top: 4px; }
-.produk-harga span { font-size: 0.72rem; font-weight: 400; color: var(--teks-abu); }
+.produk-harga { font-size: 1rem; font-weight: 800; color: var(--biru); margin-top: 4px; }
+.produk-harga span { font-size: 0.7rem; font-weight: 400; color: var(--teks-abu); }
 
 .btn-tambah {
-  background: var(--hijau); color: white; border: none;
-  border-radius: 8px; padding: 8px; font-size: 0.82rem; font-weight: 600;
-  cursor: pointer; transition: opacity 0.15s; width: 100%; margin-top: auto;
+  background: var(--biru); color: white; border: none;
+  border-radius: 6px; padding: 9px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; transition: background 0.15s; width: 100%; margin-top: auto;
 }
-.btn-tambah:hover { opacity: 0.88; }
+.btn-tambah:hover { background: var(--biru-muda); }
 .btn-tambah:disabled { background: var(--border); color: var(--teks-abu); cursor: not-allowed; }
 
 /* Pagination */
 .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 28px; }
 .page-btn {
-  padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border);
+  padding: 7px 14px; border-radius: 6px; border: 1.5px solid var(--border);
   background: var(--putih); cursor: pointer; font-size: 0.85rem; transition: all 0.15s;
 }
-.page-btn.active { background: var(--hijau); color: white; border-color: var(--hijau); }
-.page-btn:hover:not(.active) { border-color: var(--hijau); color: var(--hijau); }
+.page-btn.active { background: var(--biru); color: white; border-color: var(--biru); }
+.page-btn:hover:not(.active) { border-color: var(--biru); color: var(--biru); }
 
-/* Loading skeleton */
+/* Skeleton */
 .skeleton { background: #e5e7eb; border-radius: 6px; animation: pulse 1.2s ease infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
@@ -132,91 +165,115 @@ main { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
 }
 .overlay.active { display: flex; }
 .modal {
-  background: var(--putih); border-radius: 20px 20px 0 0;
+  background: var(--putih); border-radius: 16px 16px 0 0;
   width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto;
   padding: 24px; animation: slideUp 0.25s ease;
 }
 @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
 
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.modal-header h2 { font-size: 1.05rem; font-weight: 700; }
-.close-btn { background: var(--bg); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 1rem; }
+.modal-header h2 { font-size: 1.05rem; font-weight: 700; color: var(--biru); }
+.close-btn {
+  background: var(--bg); border: none; border-radius: 50%;
+  width: 32px; height: 32px; cursor: pointer; font-size: 1rem; color: var(--teks-abu);
+}
 
-/* Keranjang item */
+/* Cart item */
 .cart-item {
   display: flex; gap: 12px; padding: 12px 0;
   border-bottom: 1px solid var(--border); align-items: center;
 }
 .cart-item:last-child { border-bottom: none; }
 .cart-nama { flex: 1; font-size: 0.88rem; font-weight: 600; }
-.cart-harga { font-size: 0.82rem; color: var(--teks-abu); }
+.cart-harga { font-size: 0.8rem; color: var(--teks-abu); }
 .qty-wrap { display: flex; align-items: center; gap: 8px; }
 .qty-btn {
   width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border);
   background: none; cursor: pointer; font-size: 1rem; display: flex;
   align-items: center; justify-content: center; transition: all 0.1s;
 }
-.qty-btn:hover { border-color: var(--hijau); color: var(--hijau); }
+.qty-btn:hover { border-color: var(--biru); color: var(--biru); }
 .qty-num { font-size: 0.88rem; font-weight: 700; min-width: 20px; text-align: center; }
-.cart-sub { font-size: 0.88rem; font-weight: 700; color: var(--hijau); min-width: 80px; text-align: right; }
+.cart-sub { font-size: 0.88rem; font-weight: 700; color: var(--biru); min-width: 80px; text-align: right; }
 
 .cart-total {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 0; font-weight: 700; font-size: 1rem; border-top: 2px solid var(--border);
-  margin-top: 8px;
+  padding: 14px 0; font-weight: 700; font-size: 1rem;
+  border-top: 2px solid var(--border); margin-top: 8px;
 }
+.cart-total span:last-child { color: var(--biru); font-size: 1.1rem; }
 
 .kosong { text-align: center; padding: 32px; color: var(--teks-abu); font-size: 0.9rem; }
 
-/* Form checkout */
+/* Form */
 .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-.form-group label { font-size: 0.78rem; font-weight: 600; color: var(--teks-abu); }
+.form-group label { font-size: 0.78rem; font-weight: 700; color: var(--biru); }
 .form-group input, .form-group textarea, .form-group select {
-  border: 1.5px solid var(--border); border-radius: 9px;
+  border: 1.5px solid var(--border); border-radius: 7px;
   padding: 10px 12px; font-size: 0.88rem; outline: none;
   transition: border-color 0.15s; background: var(--bg); color: var(--teks);
 }
-.form-group input:focus, .form-group textarea:focus { border-color: var(--hijau); }
+.form-group input:focus, .form-group textarea:focus { border-color: var(--biru); }
 
 .btn-full {
-  width: 100%; padding: 13px; border-radius: 10px; border: none;
+  width: 100%; padding: 13px; border-radius: 7px; border: none;
   font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
 }
-.btn-hijau { background: var(--hijau); color: white; }
-.btn-hijau:hover { opacity: 0.88; }
+.btn-biru { background: var(--biru); color: white; }
+.btn-biru:hover { opacity: 0.88; }
+.btn-kuning { background: var(--kuning); color: var(--biru-gelap); }
+.btn-kuning:hover { opacity: 0.88; }
 .btn-outline { background: none; border: 1.5px solid var(--border); color: var(--teks-abu); margin-top: 8px; }
 
-/* Info pembayaran */
+/* Info bayar */
 .info-bayar {
-  background: var(--hijau-muda); border-radius: 12px; padding: 16px;
-  margin: 16px 0; border-left: 4px solid var(--hijau);
+  background: var(--kuning-muda); border-radius: 10px; padding: 16px;
+  margin: 16px 0; border-left: 4px solid var(--kuning);
 }
-.info-bayar p { font-size: 0.85rem; margin-bottom: 4px; }
-.info-bayar .rek { font-size: 1.1rem; font-weight: 800; color: var(--hijau-gelap); letter-spacing: 0.05em; }
+.info-bayar p { font-size: 0.85rem; margin-bottom: 4px; color: var(--teks); }
+.info-bayar .rek { font-size: 1.15rem; font-weight: 800; color: var(--biru-gelap); letter-spacing: 0.05em; }
 
-/* Upload bukti */
+/* Upload */
 .upload-area {
   border: 2px dashed var(--border); border-radius: 10px; padding: 24px;
   text-align: center; cursor: pointer; transition: border-color 0.15s; position: relative;
 }
-.upload-area:hover { border-color: var(--hijau); }
+.upload-area:hover { border-color: var(--biru); }
 .upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 
 /* Sukses */
 .sukses-icon { font-size: 3rem; text-align: center; margin: 16px 0 8px; }
-.sukses-kode { background: var(--bg); border-radius: 10px; padding: 12px; text-align: center; margin: 12px 0; }
-.sukses-kode code { font-size: 1.2rem; font-weight: 800; color: var(--hijau); letter-spacing: 0.1em; }
+.sukses-kode {
+  background: var(--bg); border-radius: 10px; padding: 14px;
+  text-align: center; margin: 12px 0; border: 1.5px solid var(--border);
+}
+.sukses-kode code { font-size: 1.25rem; font-weight: 800; color: var(--biru); letter-spacing: 0.12em; }
 
 /* Alert */
-.alert { padding: 11px 14px; border-radius: 8px; font-size: 0.83rem; margin-bottom: 14px; }
+.alert { padding: 11px 14px; border-radius: 7px; font-size: 0.83rem; margin-bottom: 14px; }
 .alert-error { background: #fef2f2; color: var(--merah); border: 1px solid #fecaca; }
-.alert-ok { background: var(--hijau-muda); color: var(--hijau-gelap); border: 1px solid #86efac; }
+.alert-ok { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
 
 /* Footer */
-footer { text-align: center; padding: 28px 20px; font-size: 0.78rem; color: var(--teks-abu); border-top: 1px solid var(--border); margin-top: 40px; }
+footer {
+  background: var(--biru-gelap); color: rgba(255,255,255,0.7);
+  text-align: center; padding: 24px 20px; font-size: 0.78rem; margin-top: 40px;
+}
+footer strong { color: var(--kuning); }
+
+/* Divider step */
+.step-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 16px 0 12px; font-size: 0.78rem; font-weight: 700;
+  color: var(--biru); text-transform: uppercase; letter-spacing: 0.05em;
+}
+.step-divider::before, .step-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
 
 @media (max-width: 600px) {
-  .hero h1 { font-size: 1.4rem; }
+  .hero h1 { font-size: 1.35rem; }
+  .hero-badge { gap: 12px; font-size: 0.72rem; }
   .produk-grid { grid-template-columns: repeat(2, 1fr); }
   .nav-inner { flex-wrap: wrap; }
   .search-wrap { order: 3; flex: 1 1 100%; max-width: 100%; }
@@ -243,34 +300,38 @@ footer { text-align: center; padding: 28px 20px; font-size: 0.78rem; color: var(
 </nav>
 
 <div class="hero">
-  <h1>Beli Obat Mudah & Terpercaya</h1>
+  <h1>Beli Obat <span>Mudah & Terpercaya</span></h1>
   <p>Produk asli dari apotek berlisensi. Harga transparan, pengiriman cepat ke rumah Anda.</p>
+  <div class="hero-badge">
+    <span>✓ Produk Asli</span>
+    <span>✓ Harga Resmi</span>
+    <span>✓ Terpercaya</span>
+  </div>
 </div>
 
 <main>
-  <div class="section-title" id="sectionTitle">Semua Produk</div>
+  <div class="section-header">
+    <div class="section-title" id="sectionTitle">Semua Produk</div>
+  </div>
   <div class="produk-grid" id="produkGrid">
-    <!-- Skeleton loading -->
-    ${Array(8).fill('<div class="produk-card"><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:18px;width:90%;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:40%"></div><div class="skeleton" style="height:22px;width:50%;margin-top:8px"></div><div class="skeleton" style="height:34px;margin-top:8px;border-radius:8px"></div></div>').join('')}
+    ${Array(8).fill('<div class="produk-card"><div class="skeleton" style="height:12px;width:55%;margin-bottom:8px"></div><div class="skeleton" style="height:18px;width:90%;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:40%"></div><div class="skeleton" style="height:22px;width:55%;margin-top:8px"></div><div class="skeleton" style="height:36px;margin-top:8px;border-radius:6px"></div></div>').join('')}
   </div>
   <div class="pagination" id="pagination"></div>
 </main>
 
-<!-- Modal Keranjang / Checkout -->
 <div class="overlay" id="overlay" onclick="tutupModal(event)">
-  <div class="modal" id="modal">
-    <!-- Diisi JS -->
-  </div>
+  <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerInfo">Apotek Online &bull; Produk berlisensi &bull; Layanan pelanggan tersedia</footer>
+<footer id="footerInfo">
+  <strong>Apotek Online</strong> &bull; Produk berlisensi &bull; Layanan pelanggan tersedia
+</footer>
 
 <script>
 let produkList = [], keranjang = [], page = 1, totalPage = 1, searchQ = '';
 let infoBayar = {}, pengaturan = {};
 let debounceTimer;
 
-// Init
 (async () => {
   await loadPengaturan();
   await loadProduk();
@@ -284,8 +345,8 @@ async function loadPengaturan() {
       pengaturan = j.data;
       infoBayar = j.data;
       document.getElementById('namaApotekNav').innerHTML = `${j.data.namaApotek}<span>Toko Resmi</span>`;
-      document.querySelector('.hero h1').textContent = `Beli Obat di ${j.data.namaApotek}`;
-      document.getElementById('footerInfo').textContent = `${j.data.namaApotek} · ${j.data.alamat} · ${j.data.telepon}`;
+      document.querySelector('.hero h1').innerHTML = `Beli Obat di <span>${j.data.namaApotek}</span>`;
+      document.getElementById('footerInfo').innerHTML = `<strong>${j.data.namaApotek}</strong> &bull; ${j.data.alamat} &bull; ${j.data.telepon}`;
       document.title = `${j.data.namaApotek} — Toko Online`;
     }
   } catch {}
@@ -301,15 +362,19 @@ async function loadProduk(p = 1) {
     renderProduk();
     renderPagination();
     document.getElementById('sectionTitle').textContent =
-      searchQ ? `Hasil pencarian "${searchQ}" (${j.total} produk)` : `Semua Produk (${j.total})`;
+      searchQ ? `Hasil: "${searchQ}" (${j.total} produk)` : `Semua Produk (${j.total})`;
   } catch {
-    document.getElementById('produkGrid').innerHTML = '<p style="color:#dc2626;padding:20px">Gagal memuat produk. Pastikan SehatFarma sedang berjalan.</p>';
+    document.getElementById('produkGrid').innerHTML =
+      '<p style="color:#dc2626;padding:20px;grid-column:1/-1">Gagal memuat produk. Pastikan apotek-app sedang berjalan.</p>';
   }
 }
 
 function renderProduk() {
   const el = document.getElementById('produkGrid');
-  if (!produkList.length) { el.innerHTML = '<p class="kosong" style="grid-column:1/-1">Tidak ada produk ditemukan</p>'; return; }
+  if (!produkList.length) {
+    el.innerHTML = '<p class="kosong" style="grid-column:1/-1">Tidak ada produk ditemukan</p>';
+    return;
+  }
   el.innerHTML = produkList.map(p => `
     <div class="produk-card">
       <div class="produk-kategori">${p.kategori || 'Umum'}</div>
@@ -365,13 +430,12 @@ function updateBadge() {
 
 function showToast(msg) {
   const t = document.createElement('div');
-  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:white;padding:10px 20px;border-radius:20px;font-size:0.83rem;z-index:999;animation:fadeIn 0.2s';
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--biru);color:white;padding:10px 22px;border-radius:20px;font-size:0.83rem;z-index:999;white-space:nowrap;box-shadow:0 4px 12px rgba(0,61,130,0.3)';
   t.textContent = '✓ ' + msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2000);
 }
 
-// ---- MODAL ----
 function bukaKeranjang() { tampilKeranjang(); document.getElementById('overlay').classList.add('active'); }
 function tutupModal(e) { if (e.target === e.currentTarget) document.getElementById('overlay').classList.remove('active'); }
 
@@ -385,7 +449,7 @@ function tampilKeranjang() {
       <h2>🛒 Keranjang Belanja</h2>
       <button class="close-btn" onclick="document.getElementById('overlay').classList.remove('active')">✕</button>
     </div>
-    ${!keranjang.length ? '<div class="kosong">Keranjang kosong</div>' : `
+    ${!keranjang.length ? '<div class="kosong">Keranjang masih kosong</div>' : `
       ${keranjang.map((item, i) => `
         <div class="cart-item">
           <div style="flex:1">
@@ -400,8 +464,8 @@ function tampilKeranjang() {
           <div class="cart-sub">${rupiah(item.harga_jual * item.jumlah)}</div>
         </div>`).join('')}
       ${ongkir > 0 ? `<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:0.85rem;color:#6b7280"><span>Ongkos kirim</span><span>${rupiah(ongkir)}</span></div>` : ''}
-      <div class="cart-total"><span>Total</span><span>${rupiah(subtotal + ongkir)}</span></div>
-      <button class="btn-full btn-hijau" onclick="tampilCheckout()">Lanjut ke Checkout →</button>
+      <div class="cart-total"><span>Total Pembayaran</span><span>${rupiah(subtotal + ongkir)}</span></div>
+      <button class="btn-full btn-kuning" onclick="tampilCheckout()">Lanjut ke Checkout →</button>
     `}`;
 }
 
@@ -424,21 +488,19 @@ function tampilCheckout() {
     <div class="form-group"><label>No. WhatsApp *</label><input id="ckTelepon" type="tel" placeholder="08xxx"></div>
     <div class="form-group"><label>Alamat Lengkap *</label><textarea id="ckAlamat" rows="3" placeholder="Jalan, RT/RW, kelurahan, kota..."></textarea></div>
     <div class="form-group"><label>Email (opsional)</label><input id="ckEmail" type="email" placeholder="email@contoh.com"></div>
-    <div class="form-group"><label>Catatan</label><input id="ckCatatan" placeholder="Catatan untuk apotek"></div>
-    <button class="btn-full btn-hijau" onclick="prosesOrder()">Konfirmasi Order →</button>
-    <button class="btn-full btn-outline" onclick="tampilKeranjang()">← Kembali</button>`;
+    <div class="form-group"><label>Catatan untuk Apotek</label><input id="ckCatatan" placeholder="Mis: tolong sertakan nota"></div>
+    <button class="btn-full btn-biru" onclick="prosesOrder()">Konfirmasi Order →</button>
+    <button class="btn-full btn-outline" onclick="tampilKeranjang()">← Kembali ke Keranjang</button>`;
 }
 
 async function prosesOrder() {
   const nama = document.getElementById('ckNama').value.trim();
   const telepon = document.getElementById('ckTelepon').value.trim();
   const alamat = document.getElementById('ckAlamat').value.trim();
-
   if (!nama || !telepon || !alamat) {
     document.getElementById('alertCheckout').innerHTML = '<div class="alert alert-error">Nama, telepon, dan alamat wajib diisi</div>';
     return;
   }
-
   const payload = {
     nama, telepon, alamat,
     email: document.getElementById('ckEmail').value,
@@ -446,7 +508,6 @@ async function prosesOrder() {
     metode_bayar: 'transfer',
     items: keranjang.map(i => ({ obat_id: i.id, nama_obat: i.nama, jumlah: i.jumlah }))
   };
-
   try {
     const r = await fetch('/api/order/checkout', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     const j = await r.json();
@@ -463,22 +524,28 @@ function tampilSukses(data) {
   const m = document.getElementById('modal');
   m.innerHTML = `
     <div class="sukses-icon">✅</div>
-    <div class="modal-header" style="justify-content:center;text-align:center;display:block">
-      <h2>Order Berhasil!</h2>
-      <p style="font-size:0.85rem;color:#6b7280;margin-top:4px">Simpan kode order Anda</p>
+    <div style="text-align:center;margin-bottom:16px">
+      <h2 style="color:var(--biru);font-size:1.1rem">Order Berhasil Dibuat!</h2>
+      <p style="font-size:0.83rem;color:#6b7280;margin-top:4px">Simpan kode order berikut</p>
     </div>
-    <div class="sukses-kode"><code>${data.kode}</code><p style="font-size:0.75rem;color:#6b7280;margin-top:4px">Kode Order</p></div>
+    <div class="sukses-kode">
+      <code>${data.kode}</code>
+      <p style="font-size:0.73rem;color:#6b7280;margin-top:6px">Kode Order</p>
+    </div>
+    <div class="step-divider">Instruksi Pembayaran</div>
     <div class="info-bayar">
-      <p><strong>Transfer ke:</strong></p>
-      <p class="rek">${data.info_bayar?.namaBank} · ${data.info_bayar?.noRekening}</p>
-      <p>a/n <strong>${data.info_bayar?.namaRekening}</strong></p>
-      <p style="margin-top:8px">Jumlah: <strong>${rupiah(data.total)}</strong></p>
+      <p><strong>Transfer ke rekening:</strong></p>
+      <p class="rek">${data.info_bayar?.namaBank || ''} &nbsp;${data.info_bayar?.noRekening || ''}</p>
+      <p>a/n <strong>${data.info_bayar?.namaRekening || ''}</strong></p>
+      <p style="margin-top:10px;font-size:0.9rem">Jumlah transfer: <strong style="color:var(--biru);font-size:1rem">${rupiah(data.total)}</strong></p>
     </div>
-    <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Setelah transfer, upload bukti pembayaran di bawah ini:</p>
+    <div class="step-divider">Upload Bukti Transfer</div>
+    <p style="font-size:0.82rem;color:#6b7280;margin-bottom:12px">Setelah transfer, upload foto bukti pembayaran:</p>
     <div class="upload-area" id="uploadArea">
       <input type="file" accept="image/*" onchange="uploadBukti('${data.kode}', this)">
-      <p>📎 Ketuk untuk upload bukti transfer</p>
-      <p style="font-size:0.75rem;color:#9ca3af;margin-top:4px">JPG atau PNG, maks 5MB</p>
+      <p style="font-size:1.5rem">📎</p>
+      <p style="font-weight:600;margin-top:6px">Ketuk untuk upload bukti transfer</p>
+      <p style="font-size:0.73rem;color:#9ca3af;margin-top:4px">JPG atau PNG, maks 5MB</p>
     </div>
     <div id="alertSukses" style="margin-top:12px"></div>`;
 }
@@ -491,19 +558,16 @@ async function uploadBukti(kode, input) {
   try {
     const r = await fetch(`/api/order/${kode}/bukti`, { method: 'POST', body: fd });
     const j = await r.json();
-    document.getElementById('alertSukses').innerHTML =
-      j.success
-        ? '<div class="alert alert-ok">✓ Bukti pembayaran berhasil dikirim. Kami akan segera memproses order Anda.</div>'
-        : `<div class="alert alert-error">❌ ${j.message}</div>`;
-    if (j.success) document.getElementById('uploadArea').innerHTML = '<p style="color:#16a34a;font-weight:600">✓ Bukti dikirim</p>';
+    document.getElementById('alertSukses').innerHTML = j.success
+      ? '<div class="alert alert-ok">✓ Bukti pembayaran berhasil dikirim. Kami akan segera memproses order Anda.</div>'
+      : `<div class="alert alert-error">❌ ${j.message}</div>`;
+    if (j.success) document.getElementById('uploadArea').innerHTML = '<p style="color:#16a34a;font-weight:700;padding:12px">✓ Bukti berhasil dikirim</p>';
   } catch {
     document.getElementById('alertSukses').innerHTML = '<div class="alert alert-error">Gagal upload. Coba lagi.</div>';
   }
 }
 
-function rupiah(n) {
-  return 'Rp ' + (n || 0).toLocaleString('id-ID');
-}
+function rupiah(n) { return 'Rp ' + (n || 0).toLocaleString('id-ID'); }
 </script>
 </body>
 </html>
