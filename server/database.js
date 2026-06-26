@@ -19,10 +19,20 @@ function initDatabase() {
     CREATE TABLE IF NOT EXISTS customer (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nama TEXT NOT NULL,
-      telepon TEXT NOT NULL,
+      telepon TEXT NOT NULL UNIQUE,
+      npwp TEXT DEFAULT '',
       alamat TEXT DEFAULT '',
       email TEXT DEFAULT '',
+      kategori TEXT DEFAULT 'Umum',
+      password TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      token TEXT PRIMARY KEY,
+      customer_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (customer_id) REFERENCES customer(id)
     );
 
     CREATE TABLE IF NOT EXISTS order_online (

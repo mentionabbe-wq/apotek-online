@@ -15,93 +15,123 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
-// Kirim notifikasi ke SehatFarma
-async function notifSimfar(order) {
+// Middleware ambil customer dari session (opsional)
+function getCustomer(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return null;
+  try {
+    return db.prepare('SELECT c.* FROM sessions s JOIN customer c ON s.customer_id=c.id WHERE s.token=?').get(token);
+  } catch { return null; }
+}
+
+// Kirim notifikasi ke apotek-app
+async function notifSimfar(payload) {
   const webhookUrl = process.env.SIMFAR_WEBHOOK;
   if (!webhookUrl) return;
   try {
     await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'order_baru',
-        kode: order.kode,
-        customer: order.customer_nama,
-        telepon: order.customer_telepon,
-        total: order.total,
-        items: order.items?.length || 0,
-        item_names: (order.items || []).map(i => `${i.nama} x${i.jumlah}`),
-        items_detail: (order.items || []).map(i => ({ obat_id: i.id, local_id: i.local_id || '', nama: i.nama, jumlah: i.jumlah })),
-        waktu: new Date().toISOString()
-      }),
+      body: JSON.stringify(payload),
       timeout: 5000
     });
   } catch (e) {
-    console.warn('Notif SehatFarma gagal (tidak masalah):', e.message);
+    console.warn('Notif SehatFarma gagal:', e.message);
   }
 }
 
 // POST /api/order/checkout
 router.post('/checkout', async (req, res) => {
-  const { nama, telepon, alamat, email, catatan, items, metode_bayar } = req.body;
+  const { nama, telepon, alamat, email, catatan, items, metode_bayar, jatuh_tempo } = req.body;
+  const customer = getCustomer(req);
 
-  if (!nama || !telepon || !items?.length) {
+  const nmFinal   = nama   || customer?.nama   || '';
+  const tlpFinal  = telepon|| customer?.telepon|| '';
+  const almFinal  = alamat || customer?.alamat  || '';
+  const kategori  = customer?.kategori || 'Umum';
+
+  if (!nmFinal || !tlpFinal || !items?.length)
     return res.status(400).json({ success: false, message: 'Nama, telepon, dan item wajib diisi' });
-  }
+
+  const metodeFinal = ['cod','transfer','qris','tempo'].includes(metode_bayar) ? metode_bayar : 'transfer';
 
   try {
-    // Validasi & hitung dari data apotek-app
     let subtotal = 0;
     const validItems = [];
 
     for (const item of items) {
       const produk = await getProdukById(item.obat_id);
       if (!produk) return res.status(400).json({ success: false, message: `Produk tidak ditemukan: ${item.nama_obat}` });
-      if (produk.stok < item.jumlah) return res.status(400).json({ success: false, message: `Stok ${produk.nama} tidak cukup (tersisa ${produk.stok})` });
 
-      const sub = produk.harga_jual * item.jumlah;
+      const qtyKecil = item.qty_kecil || item.jumlah;
+      if (produk.stok < qtyKecil)
+        return res.status(400).json({ success: false, message: `Stok ${produk.nama} tidak cukup (tersisa ${produk.stok})` });
+
+      const harga = item.harga_unit || produk.harga_jual;
+      const sub = harga * item.jumlah;
       subtotal += sub;
-      validItems.push({ ...produk, jumlah: item.jumlah, harga_jual: produk.harga_jual, subtotal: sub });
+      validItems.push({
+        ...produk,
+        jumlah: item.jumlah,
+        qty_kecil: qtyKecil,
+        unit_label: item.unit_label || produk.satuan,
+        harga_jual: harga,
+        subtotal: sub
+      });
     }
 
     const ongkir = parseFloat(getPengaturan('ongkirDefault')) || 0;
     const total = subtotal + ongkir;
     const kode = genKodeOrder();
 
+    // Status awal berdasarkan metode bayar
+    const statusAwal = metodeFinal === 'cod' ? 'diproses' : 'menunggu_bayar';
+
     db.transaction(() => {
-      // Simpan/update customer
-      let customer = db.prepare('SELECT id FROM customer WHERE telepon=?').get(telepon);
-      if (!customer) {
-        db.prepare('INSERT INTO customer (nama,telepon,alamat,email) VALUES (?,?,?,?)').run(nama, telepon, alamat || '', email || '');
-        customer = db.prepare('SELECT id FROM customer WHERE telepon=?').get(telepon);
+      let cust = db.prepare('SELECT id FROM customer WHERE telepon=?').get(tlpFinal);
+      if (!cust) {
+        db.prepare('INSERT INTO customer (nama,telepon,alamat,email,kategori) VALUES (?,?,?,?,?)').run(nmFinal, tlpFinal, almFinal, email||'', kategori);
+        cust = db.prepare('SELECT id FROM customer WHERE telepon=?').get(tlpFinal);
       }
 
-      db.prepare(`INSERT INTO order_online (kode,customer_id,customer_nama,customer_telepon,customer_alamat,catatan,subtotal,ongkir,total,metode_bayar)
-        VALUES (?,?,?,?,?,?,?,?,?,?)`)
-        .run(kode, customer.id, nama, telepon, alamat || '', catatan || '', subtotal, ongkir, total, metode_bayar || 'transfer');
+      db.prepare(`INSERT INTO order_online (kode,customer_id,customer_nama,customer_telepon,customer_alamat,catatan,subtotal,ongkir,total,metode_bayar,status)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
+        .run(kode, cust.id, nmFinal, tlpFinal, almFinal, catatan||'', subtotal, ongkir, total, metodeFinal, statusAwal);
 
       const orderId = db.prepare('SELECT last_insert_rowid() as id').get().id;
 
       for (const item of validItems) {
         db.prepare(`INSERT INTO order_detail (order_id,obat_id,nama_obat,satuan,jumlah,harga_jual,subtotal) VALUES (?,?,?,?,?,?,?)`)
-          .run(orderId, item.id, item.nama, item.satuan, item.jumlah, item.harga_jual, item.subtotal);
+          .run(orderId, item.id, item.nama, item.unit_label, item.jumlah, item.harga_jual, item.subtotal);
       }
     })();
 
     const order = db.prepare('SELECT * FROM order_online WHERE kode=?').get(kode);
     order.items = validItems;
 
-    // Kirim notif ke SehatFarma (async, tidak blocking)
-    notifSimfar(order);
+    // Webhook ke apotek-app
+    await notifSimfar({
+      type: metodeFinal === 'tempo' ? 'tempo' : 'order_baru',
+      kode,
+      customer: nmFinal,
+      telepon: tlpFinal,
+      total,
+      kategori,
+      metode_bayar: metodeFinal,
+      jatuh_tempo: metodeFinal === 'tempo' ? (jatuh_tempo || null) : null,
+      items: validItems.length,
+      item_names: validItems.map(i => `${i.nama} x${i.jumlah} ${i.unit_label}`),
+      items_detail: validItems.map(i => ({ obat_id: i.id, local_id: i.local_id||'', nama: i.nama, jumlah: i.qty_kecil, unit: 'kecil' })),
+      waktu: new Date().toISOString()
+    });
 
-    // Info pembayaran
     const info = {
       noRekening: getPengaturan('noRekening'),
       namaRekening: getPengaturan('namaRekening'),
       namaBank: getPengaturan('namaBank')
     };
 
-    res.json({ success: true, kode, total, ongkir, subtotal, info_bayar: info, message: 'Order berhasil dibuat' });
+    res.json({ success: true, kode, total, ongkir, subtotal, metode_bayar: metodeFinal, info_bayar: info, message: 'Order berhasil dibuat' });
 
   } catch (err) {
     console.error('Checkout error:', err);
@@ -109,7 +139,7 @@ router.post('/checkout', async (req, res) => {
   }
 });
 
-// POST /api/order/:kode/bukti — upload bukti transfer
+// POST /api/order/:kode/bukti — upload bukti transfer/qris
 router.post('/:kode/bukti', upload.single('bukti'), (req, res) => {
   if (!req.file) return res.status(400).json({ success: false, message: 'File tidak ada' });
 
@@ -120,8 +150,15 @@ router.post('/:kode/bukti', upload.single('bukti'), (req, res) => {
   db.prepare(`UPDATE order_online SET bukti_bayar=?, status='menunggu_konfirmasi', updated_at=CURRENT_TIMESTAMP WHERE kode=?`)
     .run(`/uploads/bukti/${req.file.filename}`, req.params.kode);
 
-  // Notif ulang ke SehatFarma — ada bukti bayar baru
-  notifSimfar({ ...order, kode: req.params.kode, status: 'menunggu_konfirmasi', tipe: 'bukti_bayar' });
+  notifSimfar({
+    type: 'bukti_bayar',
+    kode: req.params.kode,
+    customer: order.customer_nama,
+    telepon: order.customer_telepon,
+    total: order.total,
+    metode_bayar: order.metode_bayar,
+    waktu: new Date().toISOString()
+  });
 
   res.json({ success: true, message: 'Bukti pembayaran berhasil dikirim' });
 });

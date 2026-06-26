@@ -7,15 +7,13 @@ services:
     restart: unless-stopped
     ports:
       - "3003:3001"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     environment:
       - PORT=3001
       - NAMA_APOTEK=Apotek Dian Farma
       - ALAMAT_APOTEK=Jl. Kesehatan No. 1, Bandung
       - TELEPON_APOTEK=08123456789
-      - SIMFAR_URL=http://host.docker.internal:3002
-      - SIMFAR_WEBHOOK=http://host.docker.internal:3002/api/store/notif
+      - SIMFAR_URL=http://192.168.30.102:3002
+      - SIMFAR_WEBHOOK=http://192.168.30.102:3002/api/store/notif
     volumes:
       - /DATA/AppData/apotek-online/data:/app/server/data
       - /DATA/AppData/apotek-online/uploads:/app/server/uploads
