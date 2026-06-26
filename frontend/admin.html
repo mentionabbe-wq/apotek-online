@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Apotek Online</title>
+<style>
+:root {
+  --hijau:#16a34a; --bg:#0f172a; --card:#1e293b; --border:#334155;
+  --teks:#e2e8f0; --abu:#94a3b8; --merah:#ef4444; --kuning:#f59e0b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--teks);min-height:100vh}
+
+/* LOGIN */
+#loginWrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;width:100%;max-width:360px}
+.login-box h2{font-size:1.2rem;font-weight:700;margin-bottom:4px}
+.login-box p{font-size:0.83rem;color:var(--abu);margin-bottom:24px}
+
+/* LAYOUT */
+#appWrap{display:none}
+.sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:var(--card);border-right:1px solid var(--border);padding:20px 0;z-index:50}
+.sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.sidebar-logo h2{font-size:0.95rem;font-weight:700}
+.sidebar-logo span{font-size:0.72rem;color:var(--abu)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:0.85rem;cursor:pointer;transition:background 0.15s;border-radius:0}
+.nav-item:hover,.nav-item.active{background:#16a34a22;color:var(--hijau)}
+.nav-item .notif-dot{background:var(--merah);color:white;font-size:0.65rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;margin-left:auto}
+
+.main{margin-left:220px;padding:24px;min-height:100vh}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.stat-label{font-size:0.72rem;color:var(--abu);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.stat-val{font-size:1.5rem;font-weight:800}
+.stat-sub{font-size:0.75rem;color:var(--abu);margin-top:4px}
+
+/* TABLE */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head h3{font-size:0.9rem;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:0.83rem}
+th{text-align:left;padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--abu);border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid #1e293b;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#ffffff08}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600}
+.badge-menunggu_bayar{background:#1e293b;color:#94a3b8}
+.badge-menunggu_konfirmasi{background:#451a03;color:#f59e0b}
+.badge-diproses{background:#1e3a5f;color:#60a5fa}
+.badge-dikirim{background:#1e3a2e;color:#4ade80}
+.badge-selesai{background:#14532d;color:#86efac}
+.badge-dibatalkan{background:#450a0a;color:#f87171}
+
+/* Form & Input */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:0.75rem;color:var(--abu);font-weight:600}
+.field input,.field select,.field textarea{
+  background:#0f172a;border:1px solid var(--border);color:var(--teks);
+  border-radius:8px;padding:9px 12px;font-size:0.87rem;outline:none;transition:border-color 0.15s
+}
+.field input:focus,.field select:focus{border-color:var(--hijau)}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:0.83rem;font-weight:600;cursor:pointer;border:none;transition:opacity 0.15s}
+.btn:hover{opacity:0.85}
+.btn-hijau{background:var(--hijau);color:white}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--abu)}
+.btn-sm{padding:5px 12px;font-size:0.75rem}
+
+/* Filter tabs */
+.filter-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.ftab{padding:6px 14px;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);color:var(--abu);background:none;transition:all 0.15s}
+.ftab.active{border-color:var(--hijau);color:var(--hijau);background:#16a34a18}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.active{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:24px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-head h3{font-size:1rem;font-weight:700}
+.close-btn{background:var(--bg);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--teks);font-size:1rem}
+
+.detail-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.85rem}
+.detail-item:last-child{border-bottom:none}
+.bukti-img{width:100%;border-radius:8px;margin-top:8px;border:1px solid var(--border)}
+
+.alert{padding:10px 14px;border-radius:8px;font-size:0.82rem;margin-bottom:12px}
+.alert-ok{background:#14532d;color:#86efac;border:1px solid #166534}
+.alert-err{background:#450a0a;color:#f87171;border:1px solid #7f1d1d}
+
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div class="login-box">
+    <h2>🔐 Admin Panel</h2>
+    <p>Apotek Online — Manajemen Order</p>
+    <div class="field"><label>Password Admin</label><input type="password" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')login()"></div>
+    <div id="loginAlert"></div>
+    <button class="btn btn-hijau" style="width:100%;justify-content:center" onclick="login()">Masuk</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appWrap">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h2>💊 Apotek Online</h2>
+      <span>Admin Panel</span>
+    </div>
+    <div class="nav-item active" onclick="showPage('dashboard')">📊 Dashboard</div>
+    <div class="nav-item" onclick="showPage('orders')" id="navOrders">
+      📦 Order Masuk
+      <span class="notif-dot" id="notifDot" style="display:none">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('pengaturan')">⚙️ Pengaturan</div>
+    <div class="nav-item" onclick="logout()" style="margin-top:auto;position:absolute;bottom:20px;width:100%">🚪 Keluar</div>
+  </div>
+
+  <div class="main">
+    <!-- DASHBOARD -->
+    <div id="pageDashboard">
+      <h2 style="margin-bottom:20px;font-size:1.1rem">Dashboard</h2>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Menunggu Konfirmasi</div><div class="stat-val" id="statMenunggu">—</div></div>
+        <div class="stat-card"><div class="stat-label">Sedang Diproses</div><div class="stat-val" id="statDiproses">—</div></div>
+        <div class="stat-card"><div class="stat-label">Order Hari Ini</div><div class="stat-val" id="statHariC">—</div><div class="stat-sub" id="statHariT">—</div></div>
+        <div class="stat-card"><div class="stat-label">Order Bulan Ini</div><div class="stat-val" id="statBulanC">—</div><div class="stat-sub" id="statBulanT">—</div></div>
+      </div>
+      <div id="recentOrders"></div>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="pageOrders" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h2 style="font-size:1.1rem">Order Masuk</h2>
+        <button class="btn btn-outline btn-sm" onclick="loadOrders()">↺ Refresh</button>
+      </div>
+      <div class="filter-tabs" style="margin-bottom:16px">
+        <button class="ftab active" onclick="filterOrder('',this)">Semua</button>
+        <button class="ftab" onclick="filterOrder('menunggu_bayar',this)">Menunggu Bayar</button>
+        <button class="ftab" onclick="filterOrder('menunggu_konfirmasi',this)">Konfirmasi Bayar</button>
+        <button class="ftab" onclick="filterOrder('diproses',this)">Diproses</button>
+        <button class="ftab" onclick="filterOrder('dikirim',this)">Dikirim</button>
+        <button class="ftab" onclick="filterOrder('selesai',this)">Selesai</button>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>Kode</th><th>Customer</th><th>Total</th><th>Status</th><th>Waktu</th><th>Aksi</th></tr></thead>
+          <tbody id="ordersTable"><tr><td colspan="6" style="text-align:center;color:#475569;padding:32px">Memuat...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PENGATURAN -->
+    <div id="pagePengaturan" style="display:none">
+      <h2 style="margin-bottom:20px;font-size:1.1rem">Pengaturan Toko</h2>
+      <div class="card" style="padding:24px;max-width:480px">
+        <div id="alertPengaturan"></div>
+        <div class="field"><label>Nama Apotek</label><input id="setNama"></div>
+        <div class="field"><label>Alamat</label><input id="setAlamat"></div>
+        <div class="field"><label>Telepon</label><input id="setTelepon"></div>
+        <div class="field"><label>Nama Bank</label><input id="setBank"></div>
+        <div class="field"><label>No. Rekening</label><input id="setRek"></div>
+        <div class="field"><label>Nama Rekening</label><input id="setNamaRek"></div>
+        <div class="field"><label>Ongkir Default (0 = gratis)</label><input id="setOngkir" type="number"></div>
+        <div class="field"><label>Password Admin Baru (kosongkan jika tidak ganti)</label><input id="setPassword" type="password"></div>
+        <button class="btn btn-hijau" onclick="simpanPengaturan()">Simpan Pengaturan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detail Order -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)this.classList.remove('active')">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+let adminKey = '', filterStatus = '';
+
+async function login() {
+  const pass = document.getElementById('loginPass').value;
+  try {
+    const r = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:pass}) });
+    const j = await r.json();
+    if (!j.success) throw new Error(j.message);
+    adminKey = j.key;
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('appWrap').style.display = 'block';
+    showPage('dashboard');
+    setInterval(checkNotif, 30000);
+  } catch(e) {
+    document.getElementById('loginAlert').innerHTML = `<div class="alert alert-err">${e.message}</div>`;
+  }
+}
+
+function logout() { adminKey=''; document.getElementById('loginWrap').style.display='flex'; document.getElementById('appWrap').style.display='none'; }
+
+function showPage(p) {
+  ['dashboard','orders','pengaturan'].forEach(x => document.getElementById('page'+x.charAt(0).toUpperCase()+x.slice(1)).style.display='none');
+  document.getElementById('page'+p.charAt(0).toUpperCase()+p.slice(1)).style.display='block';
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  if(p==='dashboard') { loadStats(); document.querySelectorAll('.nav-item')[0].classList.add('active'); }
+  if(p==='orders') { loadOrders(); document.querySelectorAll('.nav-item')[1].classList.add('active'); }
+  if(p==='pengaturan') { loadPengaturan(); document.querySelectorAll('.nav-item')[2].classList.add('active'); }
+}
+
+async function loadStats() {
+  const r = await fetch('/api/admin/stats', { headers:{'x-admin-key':adminKey} });
+  const j = await r.json();
+  if (!j.success) return;
+  const d = j.data;
+  document.getElementById('statMenunggu').textContent = d.menunggu_konfirmasi;
+  document.getElementById('statDiproses').textContent = d.diproses;
+  document.getElementById('statHariC').textContent = d.hari_ini.c + ' order';
+  document.getElementById('statHariT').textContent = rupiah(d.hari_ini.total);
+  document.getElementById('statBulanC').textContent = d.bulan_ini.c + ' order';
+  document.getElementById('statBulanT').textContent = rupiah(d.bulan_ini.total);
+
+  // Notif dot
+  const notif = document.getElementById('notifDot');
+  if (d.menunggu_konfirmasi > 0) { notif.textContent = d.menunggu_konfirmasi; notif.style.display='flex'; }
+  else notif.style.display='none';
+
+  // Recent orders
+  const ro = await fetch('/api/admin/orders?page=1', { headers:{'x-admin-key':adminKey} });
+  const rj = await ro.json();
+  renderOrdersTable(rj.data?.slice(0,5) || [], 'recentOrders', true);
+}
+
+async function loadOrders() {
+  const url = filterStatus ? `/api/admin/orders?status=${filterStatus}` : '/api/admin/orders';
+  const r = await fetch(url, { headers:{'x-admin-key':adminKey} });
+  const j = await r.json();
+  renderOrdersTable(j.data || [], 'ordersTable', false);
+}
+
+function filterOrder(status, btn) {
+  filterStatus = status;
+  document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadOrders();
+}
+
+function renderOrdersTable(orders, targetId, mini) {
+  const el = document.getElementById(targetId);
+  if (!orders.length) { el.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#475569;padding:24px">Belum ada order</td></tr>'; return; }
+  el.innerHTML = orders.map(o => `
+    <tr>
+      <td><code style="font-size:0.75rem;color:#60a5fa">${o.kode}</code></td>
+      <td>${o.customer_nama}<br><span style="font-size:0.72rem;color:#64748b">${o.customer_telepon}</span></td>
+      <td>${rupiah(o.total)}</td>
+      <td><span class="badge badge-${o.status}">${labelStatus(o.status)}</span></td>
+      <td style="font-size:0.75rem;color:#64748b">${tglFormat(o.created_at)}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="lihatOrder('${o.kode}')">Detail</button></td>
+    </tr>`).join('');
+
+  if (mini && targetId === 'recentOrders') {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'card';
+    wrapper.innerHTML = `<div class="card-head"><h3>Order Terbaru</h3><button class="btn btn-outline btn-sm" onclick="showPage('orders')">Lihat semua</button></div><table><thead><tr><th>Kode</th><th>Customer</th><th>Total</th><th>Status</th><th>Waktu</th><th>Aksi</th></tr></thead><tbody>${el.innerHTML}</tbody></table>`;
+    const existing = document.getElementById('recentOrdersWrap');
+    if (existing) existing.replaceWith(wrapper);
+    else { wrapper.id='recentOrdersWrap'; document.getElementById('pageDashboard').appendChild(wrapper); }
+  }
+}
+
+async function lihatOrder(kode) {
+  const r = await fetch(`/api/admin/orders/${kode}`, { headers:{'x-admin-key':adminKey} });
+  const j = await r.json();
+  if (!j.success) return;
+  const o = j.data;
+  const m = document.getElementById('modal');
+  m.innerHTML = `
+    <div class="modal-head">
+      <h3>Order ${o.kode}</h3>
+      <button class="close-btn" onclick="document.getElementById('overlay').classList.remove('active')">✕</button>
+    </div>
+    <div style="margin-bottom:16px">
+      <span class="badge badge-${o.status}">${labelStatus(o.status)}</span>
+      <span style="font-size:0.75rem;color:#64748b;margin-left:8px">${tglFormat(o.created_at)}</span>
+    </div>
+    <div style="font-size:0.83rem;color:#94a3b8;margin-bottom:4px">Customer</div>
+    <p style="font-weight:600">${o.customer_nama}</p>
+    <p style="font-size:0.83rem;color:#94a3b8">${o.customer_telepon}</p>
+    <p style="font-size:0.83rem;color:#94a3b8;margin-bottom:16px">${o.customer_alamat}</p>
+
+    <div style="font-size:0.83rem;color:#94a3b8;margin-bottom:8px">Item Pesanan</div>
+    ${(o.detail||[]).map(d=>`
+      <div class="detail-item">
+        <span>${d.nama_obat} × ${d.jumlah} ${d.satuan}</span>
+        <span style="font-weight:700">${rupiah(d.subtotal)}</span>
+      </div>`).join('')}
+    <div class="detail-item" style="font-weight:700;font-size:1rem">
+      <span>Total</span><span style="color:#16a34a">${rupiah(o.total)}</span>
+    </div>
+
+    ${o.bukti_bayar ? `
+      <div style="margin:16px 0">
+        <div style="font-size:0.83rem;color:#94a3b8;margin-bottom:6px">Bukti Pembayaran</div>
+        <img src="${o.bukti_bayar}" class="bukti-img" alt="Bukti bayar">
+      </div>` : '<p style="color:#f59e0b;font-size:0.82rem;margin:12px 0">⏳ Belum upload bukti pembayaran</p>'}
+
+    <div style="margin-top:16px">
+      <div style="font-size:0.83rem;color:#94a3b8;margin-bottom:8px">Ubah Status</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${['menunggu_bayar','menunggu_konfirmasi','diproses','dikirim','selesai','dibatalkan'].map(s=>
+          `<button class="btn btn-sm ${s===o.status?'btn-hijau':'btn-outline'}" onclick="ubahStatus('${o.kode}','${s}',this)">${labelStatus(s)}</button>`
+        ).join('')}
+      </div>
+    </div>
+    <div id="alertDetail" style="margin-top:12px"></div>`;
+  document.getElementById('overlay').classList.add('active');
+}
+
+async function ubahStatus(kode, status, btn) {
+  const r = await fetch(`/api/admin/orders/${kode}/status`, {
+    method:'PATCH', headers:{'Content-Type':'application/json','x-admin-key':adminKey},
+    body: JSON.stringify({ status })
+  });
+  const j = await r.json();
+  document.getElementById('alertDetail').innerHTML = j.success
+    ? '<div class="alert alert-ok">✓ Status diperbarui</div>'
+    : `<div class="alert alert-err">❌ ${j.message}</div>`;
+  if (j.success) { document.querySelectorAll('#modal .btn-sm').forEach(b=>b.classList.replace('btn-hijau','btn-outline')); btn.classList.replace('btn-outline','btn-hijau'); loadStats(); }
+}
+
+async function loadPengaturan() {
+  const r = await fetch('/api/pengaturan/semua', { headers:{'x-admin-key':adminKey} });
+  const j = await r.json();
+  if (!j.success) return;
+  const d = j.data;
+  document.getElementById('setNama').value = d.namaApotek||'';
+  document.getElementById('setAlamat').value = d.alamat||'';
+  document.getElementById('setTelepon').value = d.telepon||'';
+  document.getElementById('setBank').value = d.namaBank||'';
+  document.getElementById('setRek').value = d.noRekening||'';
+  document.getElementById('setNamaRek').value = d.namaRekening||'';
+  document.getElementById('setOngkir').value = d.ongkirDefault||'0';
+}
+
+async function simpanPengaturan() {
+  const updates = {
+    namaApotek: document.getElementById('setNama').value,
+    alamat: document.getElementById('setAlamat').value,
+    telepon: document.getElementById('setTelepon').value,
+    namaBank: document.getElementById('setBank').value,
+    noRekening: document.getElementById('setRek').value,
+    namaRekening: document.getElementById('setNamaRek').value,
+    ongkirDefault: document.getElementById('setOngkir').value,
+  };
+  const pass = document.getElementById('setPassword').value;
+  if (pass) updates.adminKey = pass;
+  const r = await fetch('/api/pengaturan', { method:'PATCH', headers:{'Content-Type':'application/json','x-admin-key':adminKey}, body:JSON.stringify(updates) });
+  const j = await r.json();
+  document.getElementById('alertPengaturan').innerHTML = j.success
+    ? '<div class="alert alert-ok">✓ Pengaturan disimpan</div>'
+    : `<div class="alert alert-err">❌ ${j.message}</div>`;
+  if (pass && j.success) adminKey = pass;
+}
+
+async function checkNotif() {
+  try {
+    const r = await fetch('/api/admin/stats', { headers:{'x-admin-key':adminKey} });
+    const j = await r.json();
+    if (!j.success) return;
+    const n = j.data.menunggu_konfirmasi;
+    const dot = document.getElementById('notifDot');
+    dot.textContent = n; dot.style.display = n > 0 ? 'flex' : 'none';
+    document.getElementById('statMenunggu').textContent = n;
+  } catch {}
+}
+
+function labelStatus(s) {
+  return {menunggu_bayar:'Menunggu Bayar',menunggu_konfirmasi:'Konfirmasi Bayar',diproses:'Diproses',dikirim:'Dikirim',selesai:'Selesai',dibatalkan:'Dibatalkan'}[s]||s;
+}
+function tglFormat(d) {
+  return new Date(d).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function rupiah(n) { return 'Rp '+(n||0).toLocaleString('id-ID'); }
+</script>
+</body>
+</html>

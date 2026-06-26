@@ -1,0 +1,37 @@
+services:
+  apotek-online:
+    build: .
+    image: apotek-online:latest
+    container_name: apotek-online
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      # Nama & info apotek (sesuaikan)
+      - NAMA_APOTEK=Apotek Dian Farma
+      - ALAMAT_APOTEK=Jl. Kesehatan No. 1, Bandung
+      - TELEPON_APOTEK=08123456789
+      # Path ke database apotek-app (shared volume, read-only untuk produk)
+      - SIMFAR_DB=/simfar-data/apotek.db
+      # Webhook notifikasi ke apotek-app
+      - SIMFAR_WEBHOOK=http://apotek-backend:3000/api/store/notif
+    volumes:
+      - apotek-online-data:/app/server/data
+      - apotek-online-uploads:/app/server/uploads
+      # Share database apotek-app (read-only untuk ambil produk & stok)
+      - apotek-db:/simfar-data:ro
+    networks:
+      - apotek-net
+
+networks:
+  apotek-net:
+    external: true
+    name: apotek-app_default
+
+volumes:
+  apotek-online-data:
+  apotek-online-uploads:
+  apotek-db:
+    external: true
+    name: apotek-app_apotek-db
