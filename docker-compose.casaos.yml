@@ -13,22 +13,21 @@ services:
       - ALAMAT_APOTEK=Jl. Kesehatan No. 1, Bandung
       - TELEPON_APOTEK=08123456789
       - SIMFAR_DB=/simfar-data/apotek.db
-      - SIMFAR_WEBHOOK=http://apotek-backend:3000/api/store/notif
+      - SIMFAR_WEBHOOK=http://apotek-sehatfarma:3000/api/store/notif
     volumes:
       - apotek-online-data:/app/server/data
       - apotek-online-uploads:/app/server/uploads
-      - apotek-db:/simfar-data:ro
+      - apotek-sehatfarma_apotek-data:/simfar-data:ro
     networks:
       - apotek-net
 
 networks:
   apotek-net:
     external: true
-    name: apotek-app_default
+    name: apotek-sehatfarma_default
 
 volumes:
   apotek-online-data:
   apotek-online-uploads:
-  apotek-db:
+  apotek-sehatfarma_apotek-data:
     external: true
-    name: apotek-app_apotek-db
