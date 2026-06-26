@@ -1,0 +1,34 @@
+name: apotek-online
+
+services:
+  apotek-online:
+    image: ghcr.io/mentionabbe-wq/apotek-online:latest
+    container_name: apotek-online
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NAMA_APOTEK=Apotek Dian Farma
+      - ALAMAT_APOTEK=Jl. Kesehatan No. 1, Bandung
+      - TELEPON_APOTEK=08123456789
+      - SIMFAR_DB=/simfar-data/apotek.db
+      - SIMFAR_WEBHOOK=http://apotek-backend:3000/api/store/notif
+    volumes:
+      - apotek-online-data:/app/server/data
+      - apotek-online-uploads:/app/server/uploads
+      - apotek-db:/simfar-data:ro
+    networks:
+      - apotek-net
+
+networks:
+  apotek-net:
+    external: true
+    name: apotek-app_default
+
+volumes:
+  apotek-online-data:
+  apotek-online-uploads:
+  apotek-db:
+    external: true
+    name: apotek-app_apotek-db
