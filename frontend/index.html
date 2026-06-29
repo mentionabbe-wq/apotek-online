@@ -141,6 +141,31 @@ main { max-width: 1100px; margin: 0 auto; padding: 22px 20px; }
 footer { background: var(--biru-gelap); color: rgba(255,255,255,.7); text-align: center; padding: 22px 20px; font-size: .76rem; margin-top: 36px; }
 footer strong { color: var(--kuning); }
 
+/* ── Chat Bot ── */
+.chat-fab { position: fixed; bottom: 24px; right: 24px; z-index: 500; width: 56px; height: 56px; border-radius: 50%; background: var(--biru); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(0,61,130,.35); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: transform .2s; }
+.chat-fab:hover { transform: scale(1.1); }
+.chat-fab .chat-notif { position: absolute; top: 2px; right: 2px; width: 12px; height: 12px; background: var(--kuning); border-radius: 50%; border: 2px solid #fff; display: none; }
+.chat-panel { position: fixed; bottom: 90px; right: 24px; z-index: 500; width: 340px; max-height: 480px; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,61,130,.22); display: none; flex-direction: column; overflow: hidden; }
+.chat-panel.open { display: flex; animation: slideUp .22s ease; }
+.chat-hd { background: var(--biru); color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+.chat-hd .chat-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--kuning); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.chat-hd .chat-info { flex: 1; }
+.chat-hd .chat-info b { font-size: .88rem; display: block; }
+.chat-hd .chat-info span { font-size: .72rem; opacity: .8; }
+.chat-hd .chat-close { background: rgba(255,255,255,.2); border: none; color: #fff; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-size: .9rem; display: flex; align-items: center; justify-content: center; }
+.chat-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.chat-msg { max-width: 85%; padding: 9px 12px; border-radius: 12px; font-size: .82rem; line-height: 1.45; }
+.chat-msg.bot { background: #f0f4fa; color: var(--teks); border-bottom-left-radius: 4px; align-self: flex-start; }
+.chat-msg.user { background: var(--biru); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+.chat-msg.typing { color: var(--teks-abu); font-style: italic; }
+.chat-suggestions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 10px; }
+.chat-sug { font-size: .74rem; padding: 5px 10px; border-radius: 20px; border: 1.5px solid var(--border); background: none; cursor: pointer; color: var(--biru); transition: all .15s; }
+.chat-sug:hover { background: var(--biru); color: #fff; border-color: var(--biru); }
+.chat-ft { padding: 10px 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+.chat-ft input { flex: 1; border: 1.5px solid var(--border); border-radius: 20px; padding: 8px 13px; font-size: .83rem; outline: none; }
+.chat-ft input:focus { border-color: var(--biru); }
+.chat-ft button { background: var(--biru); color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+
 @media (max-width: 600px) {
   .hero h1 { font-size: 1.3rem; }
   .produk-grid { grid-template-columns: repeat(2, 1fr); }
@@ -185,13 +210,42 @@ footer strong { color: var(--kuning); }
     <div class="section-title" id="sectionTitle">Semua Produk</div>
   </div>
   <div class="produk-grid" id="produkGrid">
-    ${Array(8).fill('<div class="produk-card"><div class="skeleton" style="height:10px;width:55%;margin-bottom:7px"></div><div class="skeleton" style="height:16px;width:90%;margin-bottom:5px"></div><div class="skeleton" style="height:10px;width:40%"></div><div class="skeleton" style="height:20px;width:50%;margin-top:7px"></div><div class="skeleton" style="height:34px;margin-top:7px;border-radius:6px"></div></div>').join('')}
+    <div class="produk-card"><div class="skeleton" style="height:10px;width:55%;margin-bottom:7px"></div><div class="skeleton" style="height:16px;width:90%;margin-bottom:5px"></div><div class="skeleton" style="height:10px;width:40%"></div><div class="skeleton" style="height:20px;width:50%;margin-top:7px"></div><div class="skeleton" style="height:34px;margin-top:7px;border-radius:6px"></div></div>
+    <div class="produk-card"><div class="skeleton" style="height:10px;width:55%;margin-bottom:7px"></div><div class="skeleton" style="height:16px;width:90%;margin-bottom:5px"></div><div class="skeleton" style="height:10px;width:40%"></div><div class="skeleton" style="height:20px;width:50%;margin-top:7px"></div><div class="skeleton" style="height:34px;margin-top:7px;border-radius:6px"></div></div>
+    <div class="produk-card"><div class="skeleton" style="height:10px;width:55%;margin-bottom:7px"></div><div class="skeleton" style="height:16px;width:90%;margin-bottom:5px"></div><div class="skeleton" style="height:10px;width:40%"></div><div class="skeleton" style="height:20px;width:50%;margin-top:7px"></div><div class="skeleton" style="height:34px;margin-top:7px;border-radius:6px"></div></div>
+    <div class="produk-card"><div class="skeleton" style="height:10px;width:55%;margin-bottom:7px"></div><div class="skeleton" style="height:16px;width:90%;margin-bottom:5px"></div><div class="skeleton" style="height:10px;width:40%"></div><div class="skeleton" style="height:20px;width:50%;margin-top:7px"></div><div class="skeleton" style="height:34px;margin-top:7px;border-radius:6px"></div></div>
   </div>
   <div class="pagination" id="pagination"></div>
 </main>
 
 <div class="overlay" id="overlay" onclick="tutupModal(event)">
   <div class="modal" id="modal"></div>
+</div>
+
+<!-- Chat Bot Widget -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()" title="Tanya Apoteker">
+  💊
+  <span class="chat-notif" id="chatNotif"></span>
+</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-hd">
+    <div class="chat-avatar">💊</div>
+    <div class="chat-info"><b>Asisten Apotek</b><span>Tanya seputar obat & kesehatan</span></div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-msg bot">Halo! Saya asisten apotek Anda. Silakan tanya seputar obat, dosis, efek samping, atau informasi kesehatan lainnya. 😊</div>
+  </div>
+  <div class="chat-suggestions" id="chatSug">
+    <button class="chat-sug" onclick="kirimSaran('Apa kegunaan paracetamol?')">Paracetamol</button>
+    <button class="chat-sug" onclick="kirimSaran('Cara minum antibiotik yang benar?')">Antibiotik</button>
+    <button class="chat-sug" onclick="kirimSaran('Obat untuk demam anak?')">Demam</button>
+    <button class="chat-sug" onclick="kirimSaran('Cara menyimpan obat yang benar?')">Simpan Obat</button>
+  </div>
+  <div class="chat-ft">
+    <input type="text" id="chatInput" placeholder="Ketik pertanyaan..." onkeydown="if(event.key==='Enter')kirimChat()">
+    <button onclick="kirimChat()">➤</button>
+  </div>
 </div>
 
 <footer id="footerInfo">
@@ -658,6 +712,67 @@ function showToast(msg){
 }
 
 function rupiah(n){ return 'Rp '+(n||0).toLocaleString('id-ID'); }
+
+// ── Chat Bot ──
+let chatRiwayat = [], chatBuka = false;
+
+function toggleChat(){
+  chatBuka = !chatBuka;
+  document.getElementById('chatPanel').classList.toggle('open', chatBuka);
+  document.getElementById('chatNotif').style.display = 'none';
+  if(chatBuka) document.getElementById('chatInput').focus();
+}
+
+function kirimSaran(teks){
+  document.getElementById('chatInput').value = teks;
+  kirimChat();
+}
+
+async function kirimChat(){
+  const inp = document.getElementById('chatInput');
+  const pesan = inp.value.trim();
+  if(!pesan) return;
+  inp.value = '';
+
+  // Sembunyikan saran setelah percakapan dimulai
+  document.getElementById('chatSug').style.display = 'none';
+
+  tambahPesan('user', pesan);
+  const typing = tambahPesan('bot', '...', true);
+
+  try {
+    const r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pesan, riwayat: chatRiwayat })
+    });
+    const j = await r.json();
+    const jawaban = j.jawaban || 'Maaf, tidak dapat memproses pertanyaan Anda saat ini.';
+    typing.remove();
+    tambahPesan('bot', jawaban);
+    chatRiwayat.push({ role: 'user', content: pesan });
+    chatRiwayat.push({ role: 'assistant', content: jawaban });
+    if(chatRiwayat.length > 12) chatRiwayat = chatRiwayat.slice(-12);
+  } catch {
+    typing.remove();
+    tambahPesan('bot', 'Maaf, terjadi gangguan koneksi. Silakan coba lagi.');
+  }
+}
+
+function tambahPesan(role, teks, isTyping=false){
+  const body = document.getElementById('chatBody');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}${isTyping?' typing':''}`;
+  div.textContent = teks;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+  return div;
+}
+
+// Tampilkan notif chat setelah 5 detik jika belum dibuka
+setTimeout(()=>{
+  if(!chatBuka) document.getElementById('chatNotif').style.display = 'block';
+}, 5000);
 </script>
 </body>
 </html>

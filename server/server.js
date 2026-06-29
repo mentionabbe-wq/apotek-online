@@ -20,6 +20,7 @@ app.use('/api/produk',     require('./routes/produk'));
 app.use('/api/order',      require('./routes/order'));
 app.use('/api/admin',      require('./routes/admin'));
 app.use('/api/pengaturan', require('./routes/pengaturan'));
+app.use('/api/chat',      require('./routes/chat'));
 
 // 404 API
 app.use('/api', (req, res) => res.status(404).json({ success: false, message: 'Endpoint tidak ditemukan' }));

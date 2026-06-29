@@ -2,7 +2,21 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const fetch = require('node-fetch');
 const { db } = require('../database');
+
+const SIMFAR_URL = process.env.SIMFAR_URL || 'http://apotek-sehatfarma:3000';
+
+async function syncPelangganKeApp(data) {
+  try {
+    await fetch(`${SIMFAR_URL}/api/publik/pelanggan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      timeout: 4000
+    });
+  } catch {}
+}
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -23,6 +37,9 @@ router.post('/register', async (req, res) => {
 
     const token = crypto.randomBytes(32).toString('hex');
     db.prepare('INSERT INTO sessions (token,customer_id) VALUES (?,?)').run(token, result.lastInsertRowid);
+
+    // Sync ke pelanggan apotek-app (non-blocking)
+    syncPelangganKeApp({ nama, telepon, alamat, npwp, email, kategori });
 
     res.json({ success: true, token, customer: { id: result.lastInsertRowid, nama, telepon, kategori } });
   } catch (err) {
