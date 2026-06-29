@@ -543,6 +543,12 @@ async function prosesOrder(){
     const r=await fetch('/api/order/checkout',{method:'POST',headers,body:JSON.stringify(payload)});
     const j=await r.json();
     if(!j.success) throw new Error(j.message);
+    // Simpan snapshot order untuk cetak faktur
+    window._lastOrder={
+      kode:j.kode, total:j.total!=null?j.total:keranjang.reduce((s,i)=>s+i.harga_unit*i.jumlah,0),
+      metode:metodeBayar, nama, telepon, alamat, tanggal:new Date().toISOString(),
+      items:payload.items.map(it=>({nama:it.nama_obat,qty:it.jumlah,unit:it.unit_label,harga:it.harga_unit}))
+    };
     keranjang=[]; updateBadge();
     tampilSukses(j);
   }catch(e){
@@ -592,7 +598,87 @@ function tampilSukses(data){
     </div>
     <div class="sukses-kode"><code>${data.kode}</code><p style="font-size:.7rem;color:#6b7280;margin-top:5px">Kode Order</p></div>
     ${instruksi}
-    <button class="btn-full btn-outline" onclick="document.getElementById('overlay').classList.remove('active')" style="margin-top:14px">Tutup</button>`;
+    <button class="btn-full" onclick="cetakFakturOnline()" style="margin-top:14px;background:var(--biru);color:#fff">🖨️ Cetak / Simpan Faktur</button>
+    <button class="btn-full btn-outline" onclick="document.getElementById('overlay').classList.remove('active')" style="margin-top:8px">Tutup</button>`;
+}
+
+function cetakFakturOnline(){
+  const o=window._lastOrder; if(!o){alert('Data faktur tidak tersedia');return;}
+  const f2=x=>Number(x||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const tgl=new Date(o.tanggal);
+  const tglStr=`${String(tgl.getDate()).padStart(2,'0')}/${String(tgl.getMonth()+1).padStart(2,'0')}/${tgl.getFullYear()} ${String(tgl.getHours()).padStart(2,'0')}:${String(tgl.getMinutes()).padStart(2,'0')}`;
+  const nama=(pengaturan.namaApotek||pengaturan.nama_apotek||'APOTEK DIAN FARMA');
+  const alamat=(pengaturan.alamat||'');
+  const telp=(pengaturan.telepon||pengaturan.noTelp||'');
+  const metodeMap={transfer:'Transfer',qris:'QRIS',cod:'COD (Bayar di Tempat)',tempo:'Tempo / Kredit'};
+  const jmlItem=o.items.reduce((s,i)=>s+(+i.qty||0),0);
+  const rows=o.items.map((it,i)=>`<tr>
+    <td style="padding:2px 6px;text-align:center">${i+1}</td>
+    <td style="padding:2px 6px">${(it.nama||'').toUpperCase()}</td>
+    <td style="padding:2px 6px;text-align:right">${f2(it.qty)}</td>
+    <td style="padding:2px 6px">${it.unit||'Pcs'}</td>
+    <td style="padding:2px 6px;text-align:right">${f2(it.harga)}</td>
+    <td style="padding:2px 6px;text-align:right">${f2(it.harga*it.qty)}</td>
+  </tr>`).join('');
+  const terbilang=angkaTerbilang(Math.round(o.total));
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Faktur ${o.kode}</title>
+  <style>@page{size:A5;margin:0}body{font-family:'Consolas','Courier New',monospace;font-size:11px;color:#000;margin:0;padding:8mm 9mm}
+  table{border-collapse:collapse;width:100%}h1{font-size:15px;margin:0}</style></head><body>
+  <table style="margin-bottom:8px"><tr>
+    <td style="width:60%;vertical-align:top">
+      <h1>FAKTUR PENJUALAN</h1>
+      <div style="font-weight:bold;font-size:13px">${nama.toUpperCase()}</div>
+      <div>${alamat}</div>${telp?`<div>${telp}</div>`:''}
+    </td>
+    <td style="vertical-align:top;font-size:11px">
+      <table><tr><td>No Order</td><td style="padding:0 4px">:</td><td>${o.kode}</td></tr>
+      <tr><td>Tanggal</td><td>:</td><td>${tglStr}</td></tr>
+      <tr><td>Pelanggan</td><td>:</td><td>${o.nama}</td></tr>
+      <tr><td>Telepon</td><td>:</td><td>${o.telepon}</td></tr>
+      <tr><td>Bayar</td><td>:</td><td>${metodeMap[o.metode]||o.metode}</td></tr></table>
+    </td>
+  </tr></table>
+  <table style="font-size:11px">
+    <thead><tr style="border-top:1.5px solid #000;border-bottom:1.5px solid #000">
+      <th style="padding:3px 6px">No.</th><th style="padding:3px 6px;text-align:left">Nama Item</th>
+      <th style="padding:3px 6px;text-align:right">Jml</th><th style="padding:3px 6px;text-align:left">Satuan</th>
+      <th style="padding:3px 6px;text-align:right">Harga</th><th style="padding:3px 6px;text-align:right">Total</th>
+    </tr></thead><tbody>${rows}</tbody></table>
+  <div style="border-top:1.5px solid #000;margin:3px 0 6px"></div>
+  <table style="font-size:11px"><tr>
+    <td style="width:55%;vertical-align:top">
+      <div>Alamat Kirim : ${o.alamat}</div>
+      <div style="margin-top:30px;text-align:center;width:200px">Hormat Kami<div style="margin-top:30px">(.............................)</div></div>
+    </td>
+    <td style="vertical-align:top">
+      <table style="width:100%"><tr><td>Jml Item</td><td>:</td><td style="text-align:right">${f2(jmlItem)}</td></tr>
+      <tr><td>Sub Total</td><td>:</td><td style="text-align:right">${f2(o.total)}</td></tr>
+      <tr><td style="font-weight:bold">Total Akhir</td><td>:</td><td style="text-align:right;font-weight:bold">${f2(o.total)}</td></tr></table>
+    </td>
+  </tr></table>
+  <div style="border-top:1px solid #000;margin-top:6px;padding-top:3px">Terbilang : <i>${terbilang} rupiah</i></div>
+  <script>window.onload=()=>window.print()<\/script></body></html>`;
+  const w=window.open('','_blank','width=800,height=600');
+  w.document.write(html); w.document.close();
+}
+
+// Terbilang sederhana untuk faktur online
+function angkaTerbilang(n){
+  n=Math.abs(Math.round(n));
+  const sat=['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
+  function konv(x){
+    if(x<12) return sat[x];
+    if(x<20) return konv(x-10)+' belas';
+    if(x<100) return konv(Math.floor(x/10))+' puluh'+(x%10?' '+konv(x%10):'');
+    if(x<200) return 'seratus'+(x%100?' '+konv(x%100):'');
+    if(x<1000) return konv(Math.floor(x/100))+' ratus'+(x%100?' '+konv(x%100):'');
+    if(x<2000) return 'seribu'+(x%1000?' '+konv(x%1000):'');
+    if(x<1000000) return konv(Math.floor(x/1000))+' ribu'+(x%1000?' '+konv(x%1000):'');
+    if(x<1000000000) return konv(Math.floor(x/1000000))+' juta'+(x%1000000?' '+konv(x%1000000):'');
+    return konv(Math.floor(x/1000000000))+' miliar'+(x%1000000000?' '+konv(x%1000000000):'');
+  }
+  if(n===0) return 'nol';
+  return konv(n).replace(/\s+/g,' ').trim();
 }
 
 async function uploadBukti(kode, input){

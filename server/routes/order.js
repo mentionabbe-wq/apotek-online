@@ -150,6 +150,14 @@ router.post('/:kode/bukti', upload.single('bukti'), (req, res) => {
   db.prepare(`UPDATE order_online SET bukti_bayar=?, status='menunggu_konfirmasi', updated_at=CURRENT_TIMESTAMP WHERE kode=?`)
     .run(`/uploads/bukti/${req.file.filename}`, req.params.kode);
 
+  // Baca file & encode base64 agar bisa ditampilkan di apotek-app (lintas container)
+  let buktiData = '';
+  try {
+    const buf = fs.readFileSync(path.join(uploadDir, req.file.filename));
+    const mime = req.file.mimetype || 'image/jpeg';
+    buktiData = `data:${mime};base64,${buf.toString('base64')}`;
+  } catch {}
+
   notifSimfar({
     type: 'bukti_bayar',
     kode: req.params.kode,
@@ -157,6 +165,7 @@ router.post('/:kode/bukti', upload.single('bukti'), (req, res) => {
     telepon: order.customer_telepon,
     total: order.total,
     metode_bayar: order.metode_bayar,
+    bukti_data: buktiData,
     waktu: new Date().toISOString()
   });
 
