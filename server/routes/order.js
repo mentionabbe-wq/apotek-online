@@ -115,6 +115,8 @@ router.post('/checkout', async (req, res) => {
       kode,
       customer: nmFinal,
       telepon: tlpFinal,
+      alamat: almFinal,
+      catatan: catatan || '',
       total,
       kategori,
       metode_bayar: metodeFinal,
