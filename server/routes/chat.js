@@ -3,6 +3,7 @@ const router = express.Router();
 const fetch = require('node-fetch');
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
+const OPENAI_API_KEY    = process.env.OPENAI_API_KEY || '';
 
 const SYSTEM_PROMPT = `Kamu adalah asisten apotek online yang membantu pelanggan menjawab pertanyaan seputar obat-obatan dan kesehatan.
 
@@ -55,33 +56,58 @@ router.post('/', async (req, res) => {
   const { pesan, riwayat = [] } = req.body;
   if (!pesan) return res.status(400).json({ success: false });
 
-  if (!ANTHROPIC_API_KEY) {
+  // Tidak ada API key → fallback FAQ lokal
+  if (!ANTHROPIC_API_KEY && !OPENAI_API_KEY) {
     return res.json({ success: true, jawaban: jawabFallback(pesan) });
   }
 
-  try {
-    const messages = [
-      ...riwayat.slice(-6).map(r => ({ role: r.role, content: r.content })),
-      { role: 'user', content: pesan }
-    ];
+  const messages = [
+    ...riwayat.slice(-6).map(r => ({ role: r.role, content: r.content })),
+    { role: 'user', content: pesan }
+  ];
 
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 512,
-        system: SYSTEM_PROMPT,
-        messages
-      }),
-      timeout: 15000
-    });
-    const j = await r.json();
-    const jawaban = j.content?.[0]?.text || jawabFallback(pesan);
+  try {
+    let jawaban;
+
+    if (OPENAI_API_KEY) {
+      // ── OpenAI ──
+      const r = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + OPENAI_API_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          max_tokens: 512,
+          messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages]
+        }),
+        timeout: 15000
+      });
+      const j = await r.json();
+      jawaban = j.choices?.[0]?.message?.content || jawabFallback(pesan);
+
+    } else {
+      // ── Anthropic ──
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 512,
+          system: SYSTEM_PROMPT,
+          messages
+        }),
+        timeout: 15000
+      });
+      const j = await r.json();
+      jawaban = j.content?.[0]?.text || jawabFallback(pesan);
+    }
+
     res.json({ success: true, jawaban });
   } catch {
     res.json({ success: true, jawaban: jawabFallback(pesan) });
