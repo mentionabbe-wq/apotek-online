@@ -253,7 +253,7 @@ footer strong { color: var(--kuning); }
 </footer>
 
 <script>
-let produkList=[], keranjang=[], page=1, totalPage=1, searchQ='';
+let produkList=[], keranjang=[], page=1, totalPage=1, searchQ='', LIMIT_PRODUK=10;
 let infoBayar={}, pengaturan={}, debounceTimer;
 let currentUser=null, authToken=null;
 
@@ -309,10 +309,10 @@ async function loadPengaturan(){
 async function loadProduk(p=1){
   page=p;
   try{
-    const r=await fetch(`/api/produk?search=${encodeURIComponent(searchQ)}&page=${p}`);
+    const r=await fetch(`/api/produk?search=${encodeURIComponent(searchQ)}&page=${p}&limit=${LIMIT_PRODUK}`);
     const j=await r.json();
     produkList=j.items||[];
-    totalPage=Math.ceil((j.total||0)/(j.limit||24));
+    totalPage=Math.ceil((j.total||0)/(j.limit||LIMIT_PRODUK));
     renderProduk(); renderPagination();
     document.getElementById('sectionTitle').textContent=searchQ?`Hasil: "${searchQ}" (${j.total})`:`Semua Produk (${j.total})`;
   }catch{
