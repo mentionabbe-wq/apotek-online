@@ -2,7 +2,11 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#003D82">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Apotek Online</title>
 <style>
 :root {
@@ -13,7 +17,10 @@
   --merah: #dc2626; --hijau: #16a34a;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--teks); }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--teks); -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; overscroll-behavior-y: none; }
+button, a, input { -webkit-tap-highlight-color: transparent; }
+img { max-width: 100%; }
 
 nav { background: var(--biru); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
 .nav-inner { max-width: 1100px; margin: 0 auto; padding: 13px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -167,11 +174,29 @@ footer strong { color: var(--kuning); }
 .chat-ft button { background: var(--biru); color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
 
 @media (max-width: 600px) {
+  .hero { padding: 26px 16px; }
   .hero h1 { font-size: 1.3rem; }
-  .produk-grid { grid-template-columns: repeat(2, 1fr); }
-  .nav-inner { flex-wrap: wrap; }
-  .search-wrap { order: 3; flex: 1 1 100%; max-width: 100%; }
+  .hero p { font-size: .82rem; }
+  .produk-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .produk-card { padding: 12px; }
+  .nav-inner { flex-wrap: wrap; padding: 10px 14px; padding-top: calc(10px + env(safe-area-inset-top)); gap: 8px; }
+  .search-wrap { order: 3; flex: 1 1 100%; max-width: 100%; min-width: 0; }
+  main { padding: 16px 14px; }
   .bayar-grid { grid-template-columns: 1fr 1fr; }
+  /* Modal jadi bottom-sheet penuh */
+  .modal { max-width: 100%; max-height: 94vh; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0; }
+  /* Chat panel hampir penuh layar */
+  .chat-fab { bottom: calc(18px + env(safe-area-inset-bottom)); right: 16px; }
+  .chat-panel { right: 12px; left: 12px; width: auto; bottom: calc(80px + env(safe-area-inset-bottom)); max-height: 70vh; }
+  footer { padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); }
+  /* Cegah iOS auto-zoom saat fokus input (butuh >=16px) */
+  input, select, textarea { font-size: 16px !important; }
+  .btn-nav, .btn-full, .btn-tambah { min-height: 44px; }
+}
+@media (max-width: 380px) {
+  .produk-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .logo-text { font-size: .85rem; }
+  .btn-nav { padding: 8px 11px; }
 }
 </style>
 </head>
