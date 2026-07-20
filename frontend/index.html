@@ -590,7 +590,7 @@ function tampilSukses(data){
     instruksi=`
       <div class="step-divider">${metode==='qris'?'Pembayaran QRIS':'Instruksi Transfer'}</div>
       <div class="info-bayar">
-        ${metode==='transfer'?`<p><strong>Transfer ke:</strong></p><p class="rek">${data.info_bayar?.namaBank||''} &nbsp;${data.info_bayar?.noRekening||''}</p><p>a/n <strong>${data.info_bayar?.namaRekening||''}</strong></p>`:'<p>Scan QR code yang tersedia di apotek atau hubungi kami untuk mendapat kode QR.</p>'}
+        ${metode==='transfer'?`<p><strong>Transfer ke:</strong></p><p class="rek">${data.info_bayar?.namaBank||''} &nbsp;${data.info_bayar?.noRekening||''}</p><p>a/n <strong>${data.info_bayar?.namaRekening||''}</strong></p>`:'<div id="qrisBox" style="text-align:center;padding:6px 0"><p style="font-size:.8rem;color:var(--teks-abu)">Memuat kode QR…</p></div>'}
         <p style="margin-top:8px">Jumlah: <strong style="color:var(--biru);font-size:1rem">${rupiah(data.total)}</strong></p>
       </div>
       <div class="step-divider">Upload Bukti Pembayaran</div>
@@ -625,6 +625,26 @@ function tampilSukses(data){
     ${instruksi}
     <button class="btn-full" onclick="cetakFakturOnline()" style="margin-top:14px;background:var(--biru);color:#fff">🖨️ Cetak / Simpan Faktur</button>
     <button class="btn-full btn-outline" onclick="document.getElementById('overlay').classList.remove('active')" style="margin-top:8px">Tutup</button>`;
+
+  if(metode==='qris') muatQris();
+}
+
+// Ambil QRIS statis yang diatur di apotek-app
+async function muatQris(){
+  const box=document.getElementById('qrisBox'); if(!box) return;
+  try{
+    const r=await fetch('/api/pengaturan/pembayaran');
+    const j=await r.json();
+    const qris=j.data?.qris;
+    if(qris){
+      box.innerHTML=`<img src="${qris}" alt="QRIS" style="width:100%;max-width:230px;border:1px solid var(--border);border-radius:10px;background:#fff;padding:8px">
+        <p style="font-size:.74rem;color:var(--teks-abu);margin-top:6px">Scan dengan aplikasi e-wallet / m-banking Anda</p>`;
+    } else {
+      box.innerHTML='<p style="font-size:.8rem;color:var(--teks-abu)">Kode QR belum tersedia. Silakan hubungi apotek untuk pembayaran.</p>';
+    }
+  }catch{
+    box.innerHTML='<p style="font-size:.8rem;color:var(--merah)">Gagal memuat kode QR. Coba lagi atau hubungi apotek.</p>';
+  }
 }
 
 function cetakFakturOnline(){
